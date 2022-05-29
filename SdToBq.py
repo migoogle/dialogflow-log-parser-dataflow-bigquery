@@ -24,51 +24,8 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
 from apache_beam.options.pipeline_options import StandardOptions
 
-def iterate_multidimensional(my_dict):
-    return_json = {
-        "insertId": None,
-        "logName": None,
-        "receiveTimestamp": None,
-        "jsonPayload": None,
-        "timestamp": None,
-        "trace": None
-    }
-    for k,v in my_dict.items():
-        if(isinstance(v,dict)):
-            iterate_multidimensional(v)
-            #continue
-        if k in return_json:
-            return_json[k] = v
-    return return_json 
-
-def iterate_jsonPayload_multidimensional(my_dict):
-    return_dict = {
-        "currentPage": None,
-        "session_id": None,
-        "intentDetectionConfidence": None,
-        "agent_id": None,
-        "responseId": None,
-        "parameters": None
-    }
-
-    for k,v in my_dict.items():
-        if(isinstance(v,dict)):
-            iterate_jsonPayload_multidimensional(v)
-            #continue
-        if k in return_dict:
-            return_dict[k] = v
-    return return_dict
-
-def iterate_jsonPayload(my_list):
-    res = []
-    for item in my_list:
-        my_list_item = item.replace('"', '')
-        if ':' in my_list_item:
-            res.append(map(str.strip, my_list_item.split(":", 1)))
-    return dict(res)
-
-def get_value_from_multidimensional_dict(key, dictionary):
-    
+# function that looks for a key in a dictionary and returns the value.
+def get_value_from_multidimensional_dict(key, dictionary):  
     for k, v in dictionary.items():
         if k == key:
             return v
