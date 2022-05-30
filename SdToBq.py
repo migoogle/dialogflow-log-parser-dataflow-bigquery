@@ -22,66 +22,12 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
 from apache_beam.options.pipeline_options import StandardOptions
 
-# Schema for BigQuery table:
-bigquery_table_schema = {
-    "fields": [
-        {
-            "mode": "NULLABLE",
-                    "name": "session_id",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "intentDetectionConfidence",
-                    "type": "FLOAT"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "agent_id",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "responseId",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "receiveTimestamp",
-                    "type": "TIMESTAMP"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "error_type",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "string_value",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "jsonPayload",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "parameters",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "currentPage",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "timestamp",
-                    "type": "TIMESTAMP"
-        }
-    ]
-}
+
+# function to read a json file and create a dictionary
+def read_json_file(file_path):
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+    return data
 
 # function that gets a dictionary and returns a list with the values of an specific key
 def get_values_from_dict(key, dictionary):
@@ -125,7 +71,7 @@ def get_values_from_multidimensional_dict(keys, dictionary):
     for key in keys:
         logging.info('Processing key: ' + key)
         value = get_value_from_multidimensional_dict(key, dictionary)
-        if isinstance(value, str):
+        if isinstance(value, str) or isinstance(value, float):
             return_dict[key] = value
         elif isinstance(value, dict):
             # logging.info('Processing dict: ' + str(value))
@@ -161,6 +107,8 @@ def run(argv=None, save_main_session=True):
     parser.add_argument('--output_bigquery', required=True,
                         help='Output BQ table to write results to '
                              '"PROJECT_ID:DATASET.TABLE"')
+    parser.add_argument('--bigquery_schema', required=True,
+                        help='BigQuery schema to use for the output table')
     known_args, pipeline_args = parser.parse_known_args(argv)
     pipeline_options = PipelineOptions(pipeline_args)
     pipeline_options.view_as(
@@ -198,6 +146,9 @@ def run(argv=None, save_main_session=True):
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
+    # Schema for BigQuery table:
+    bigquery_table_schema_list = read_json_file('/Users/miguens/dialogflow-log-parser-dataflow-bigquery/schema.json')
+    bigquery_table_schema = {'fields': bigquery_table_schema_list}
     filter = get_values_from_dict('name', bigquery_table_schema)
     run()
 # [END parsing Stackdriver logs from pubsub_to_bigquery]

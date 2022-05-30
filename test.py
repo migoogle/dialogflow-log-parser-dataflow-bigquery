@@ -1,3 +1,5 @@
+import json
+
 # function that gets a dictionary and returns a list with the values of an specific key
 def get_values_from_dict(key, dictionary):
     return_list = []
@@ -18,67 +20,15 @@ def get_values_from_dict(key, dictionary):
     return return_list
 
 
-# Write to BigQuery
-bigquery_table_schema = {
-    "fields": [
-        {
-            "mode": "NULLABLE",
-            "name": "session_id",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "intentDetectionConfidence",
-            "type": "FLOAT"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "agent_id",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "responseId",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "receiveTimestamp",
-            "type": "TIMESTAMP"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "error_type",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "string_value",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "jsonPayload",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-                    "name": "parameters",
-                    "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "currentPage",
-            "type": "STRING"
-        },
-        {
-            "mode": "NULLABLE",
-            "name": "timestamp",
-            "type": "TIMESTAMP"
-        }
-    ]
-}
+# function to read a json file and create a dictionary
+def read_json_file(file_path):
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+    return data
 
+# Schema for BigQuery table:
+bigquery_table_schema_list = read_json_file('/Users/miguens/dialogflow-log-parser-dataflow-bigquery/schema.json')
+bigquery_table_schema = {'fields': bigquery_table_schema_list}
 
 list = get_values_from_dict('name', bigquery_table_schema)
 print(list)

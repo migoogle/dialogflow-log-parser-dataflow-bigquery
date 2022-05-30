@@ -14,33 +14,15 @@ The Pipeline Steps are as follows:
 __Note:__ Dialogflow Interactions Logging is sent to Cloud Logging as a Text Payload, this code will parse the Text Payload to a structured format within BigQuery which is defined in the Dataflow code.
 
 ## BigQuery Schema
-You can change the schema as required in the Dataflow code to include other key:value pairs extracted from Cloud Logging. Here is a reference to the current schema:
+You can modify the schema.json file to define the BigQuery's table schema.
 
-| Field name      | Type | 
-| ----------- | ----------- | 
-| session_id      | STRING       |
-| trace   | STRING        |
-| caller_id   | STRING        |
-| email   | STRING        |
-| timestamp   | TIMESTAMP        |
-| receiveTimestamp   | TIMESTAMP        |
-| resolved_query   | STRING        |
-| string_value   | STRING        |
-| speech   | STRING        |
-| is_fallback_intent   | STRING        |
-| webhook_for_slot_filling_used   | STRING        |
-| webhook_used   | STRING        |
-| intent_name   | STRING        |
-| intent_id   | STRING        |
-| action   | STRING        |
-| source   | STRING        |
-| error_type   | STRING        |
-| code   | STRING        |
-| insertId   | STRING        |
-| logName   | STRING        |
-| lang   | STRING        |
-| textPayload   | STRING        |
+## Create the table using schema json file:
 
+If you're creating an empty table, use the bq mk command.
+
+```
+bq mk --table project_id:dataset.table path_to_schema_file
+```
 ## Installation
 
 1. Enable the Dataflow API
@@ -79,7 +61,8 @@ You can change the schema as required in the Dataflow code to include other key:
     python3 stackdriverdataflowbigquery.py --project=[YOUR_PROJECT_ID] \ 
     --input_topic=projects/[YOUR_PROJECT_ID]/topics/[YOUR_TOPIC_NAME] \ 
     --runner=DataflowRunner --temp_location=gs://[YOUR_DATAFLOW_STAGING_BUCKET]/tmp \
-    --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=us-central1
+    --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=us-central1 \
+    --bigquery_schema=[YOUR_BIGQUERY_SCHEMA_JSON_FILE]
     ```
 
 9. Enable Dialogflow Logs to Cloud Logging

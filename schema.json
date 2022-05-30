@@ -1,0 +1,77 @@
+[
+    {
+        "mode": "NULLABLE",
+        "name": "project_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "location_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "TargetPage",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "session_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "intentDetectionConfidence",
+        "type": "FLOAT"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "agent_id",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "responseId",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "receiveTimestamp",
+        "type": "TIMESTAMP"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "matchType",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "error_type",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "string_value",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "jsonPayload",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "parameters",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "currentPage",
+        "type": "STRING"
+    },
+    {
+        "mode": "NULLABLE",
+        "name": "timestamp",
+        "type": "TIMESTAMP"
+    }
+]
