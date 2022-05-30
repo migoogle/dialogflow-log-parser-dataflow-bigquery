@@ -16,93 +16,81 @@
 import argparse
 import logging
 import json
-import re
-import ast
 
 import apache_beam as beam
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam.options.pipeline_options import SetupOptions
 from apache_beam.options.pipeline_options import StandardOptions
 
-def iterate_multidimensional(my_dict):
-    return_json = {
-        "insertId": None,
-        "logName": None,
-        "receiveTimestamp": None,
-        "textPayload": None,
-        "timestamp": None,
-        "trace": None
-    }
-    for k,v in my_dict.items():
-        if(isinstance(v,dict)):
-            iterate_multidimensional(v)
-            continue
-        if k in return_json:
-            return_json[k] = v
-    return return_json 
 
-def iterate_textpayload_multidimensional(my_dict):
-    return_dict = {
-        "error_type": None,
-        "session_id": None,
-        "caller_id": None,
-        "email": None,
-        "code": None,
-        "string_value": None,
-        "lang": None,
-        "speech": None, 
-        "is_fallback_intent": None,
-        "webhook_for_slot_filling_used": None,
-        "webhook_used": None,
-        "intent_name": None,
-        "intent_id": None,
-        "score": None,
-        "action": None,
-        "resolved_query": None,
-        "source": None
-    }
+# function to read a json file and create a dictionary
+def read_json_file(file_path):
+    with open(file_path) as json_file:
+        data = json.load(json_file)
+    return data
 
-    for k,v in my_dict.items():
-        if(isinstance(v,dict)):
-            iterate_textpayload_multidimensional(v)
-            continue
-        if k in return_dict:
-            return_dict[k] = v
+# function that gets a dictionary and returns a list with the values of an specific key
+def get_values_from_dict(key, dictionary):
+    return_list = []
+    for k, v in dictionary.items():
+        if k == key:
+            return_list.append(v)
+        elif isinstance(v, dict):
+            value = get_values_from_dict(key, v)
+            if value:
+                return_list.append(value)
+        elif isinstance(v, list):
+            for item in v:
+                if isinstance(item, dict):
+                    value = get_values_from_dict(key, item)
+                    if value:
+                        return_list.append(value[0])
+    return return_list
+
+# function that looks for a key in a dictionary and returns the value.
+def get_value_from_multidimensional_dict(key, dictionary):
+    for k, v in dictionary.items():
+        if k == key:
+            return v
+        elif isinstance(v, dict):
+            value = get_value_from_multidimensional_dict(key, v)
+            if value:
+                return value
+        elif isinstance(v, list):
+            for item in v:
+                if isinstance(item, dict):
+                    value = get_value_from_multidimensional_dict(key, item)
+                    if value:
+                        return value
+
+    return None
+
+# function that takes a list of keys and a dictionary and returns a dictionary with the values of the keys
+def get_values_from_multidimensional_dict(keys, dictionary):
+    return_dict = {}
+    for key in keys:
+        logging.info('Processing key: ' + key)
+        value = get_value_from_multidimensional_dict(key, dictionary)
+        if isinstance(value, str) or isinstance(value, float):
+            return_dict[key] = value
+        elif isinstance(value, dict):
+            # logging.info('Processing dict: ' + str(value))
+            return_dict[key] = json.dumps(value)
+        elif isinstance(value, list):
+            # logging.info('Processing list: ' + str(value))
+            return_dict[key] = json.dumps(value)
     return return_dict
 
-def iterate_textpayload(my_list):
-    res = []
-    for item in my_list:
-        my_list_item = item.replace('"', '')
-        if ':' in my_list_item:
-            res.append(map(str.strip, my_list_item.split(":", 1)))
-    return dict(res)
 
 # function to get response body data from pub/sub message and build structure for BigQuery load
 def parse_transform_response(data):
     logging.info('--- START parse_transform_response Function ---')
     pub_sub_data = json.loads(data)
-    fullpayload_dict = iterate_multidimensional(pub_sub_data)
-    # Clean textPlayload from Stackdriver - not a valid JSON object
-    text_payload = fullpayload_dict['textPayload']
-    return_merged_payload = None
+    fullpayload_dict = get_values_from_multidimensional_dict(
+        filter, pub_sub_data)
+    logging.info('--- End parse_transform_response Function ---')
+    return fullpayload_dict
 
-    if text_payload != None:
-        regex = re.compile(r'''[\S]+:(?:\s(?!\S+:)\S+)+''', re.VERBOSE)
-        matches = regex.findall(pub_sub_data["textPayload"])
-        iterate_textpayload_response = iterate_textpayload(matches)
-        textpayload_dict = iterate_textpayload_multidimensional(iterate_textpayload_response)
-        if textpayload_dict["error_type"] is not None:
-            textpayload_dict["error_type"] = textpayload_dict["error_type"].replace("\n", "").replace("}", "").strip()
-        return_merged_payload = dict(list(fullpayload_dict.items()) + list(textpayload_dict.items()))
-    if return_merged_payload is not None:
-        logging.info('--- END parse_transform_response Function ---')
-        logging.info(return_merged_payload)
-        return return_merged_payload
-    else:
-        logging.info('--- END parse_transform_response Function ---')
-        logging.info(fullpayload_dict)
-        return fullpayload_dict
 
 def run(argv=None, save_main_session=True):
     """Build and run the pipeline."""
@@ -119,10 +107,12 @@ def run(argv=None, save_main_session=True):
     parser.add_argument('--output_bigquery', required=True,
                         help='Output BQ table to write results to '
                              '"PROJECT_ID:DATASET.TABLE"')
+    parser.add_argument('--bigquery_schema', required=True,
+                        help='BigQuery schema to use for the output table')
     known_args, pipeline_args = parser.parse_known_args(argv)
-
     pipeline_options = PipelineOptions(pipeline_args)
-    pipeline_options.view_as(SetupOptions).save_main_session = save_main_session
+    pipeline_options.view_as(
+        SetupOptions).save_main_session = save_main_session
     pipeline_options.view_as(StandardOptions).streaming = True
     p = beam.Pipeline(options=pipeline_options)
 
@@ -130,148 +120,35 @@ def run(argv=None, save_main_session=True):
     if known_args.input_subscription:
         messages = (p
                     | beam.io.ReadFromPubSub(
-                    subscription=known_args.input_subscription)
+                        subscription=known_args.input_subscription)
                     .with_output_types(bytes))
     else:
         messages = (p
                     | beam.io.ReadFromPubSub(topic=known_args.input_topic)
                     .with_output_types(bytes))
 
-    decode_messages = messages | 'DecodePubSubMessages' >> beam.Map(lambda x: x.decode('utf-8'))
+    decode_messages = messages | 'DecodePubSubMessages' >> beam.Map(
+        lambda x: x.decode('utf-8'))
 
     # Parse response body data from pub/sub message and build structure for BigQuery load
-    output = decode_messages | 'ParseTransformResponse' >> beam.Map(parse_transform_response)
+    output = decode_messages | 'ParseTransformResponse' >> beam.Map(
+        parse_transform_response)
 
     # Write to BigQuery
-    bigquery_table_schema = {
-        "fields": [
-                    {
-                        "mode": "NULLABLE",
-                        "name": "session_id",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "trace",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "caller_id",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "email",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "timestamp",
-                        "type": "TIMESTAMP"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "receiveTimestamp",
-                        "type": "TIMESTAMP"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "resolved_query",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "string_value",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "speech",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "is_fallback_intent",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "webhook_for_slot_filling_used",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "webhook_used",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "intent_name",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "intent_id",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "score",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "action",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "source",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "error_type",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "code",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "insertId",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "logName",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "lang",
-                        "type": "STRING"
-                    },
-                    {
-                        "mode": "NULLABLE",
-                        "name": "textPayload",
-                        "type": "STRING"
-                    }
-                    
-                ]
-    }
     output | 'WriteToBigQuery' >> beam.io.WriteToBigQuery(
-            known_args.output_bigquery,
-            schema=bigquery_table_schema,
-            create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
-            write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND)
+        known_args.output_bigquery,
+        schema=bigquery_table_schema,
+        create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+        write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND)
 
     p.run()
 
+
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
+    # Schema for BigQuery table:
+    bigquery_table_schema_list = read_json_file('/Users/miguens/dialogflow-log-parser-dataflow-bigquery/schema.json')
+    bigquery_table_schema = {'fields': bigquery_table_schema_list}
+    filter = get_values_from_dict('name', bigquery_table_schema)
     run()
 # [END parsing Stackdriver logs from pubsub_to_bigquery]

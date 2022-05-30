@@ -145,7 +145,7 @@ This json is an example for fields extracted from the logs of a Dialogflow CX ag
 8. Deploy Dataflow Job
 
     ```sh
-    python3 stackdriverdataflowbigquery.py --project=[YOUR_PROJECT_ID] \ 
+    python3 stackdriverdataflowbigquery.py.py --project=[YOUR_PROJECT_ID] \ 
     --input_topic=projects/[YOUR_PROJECT_ID]/topics/[YOUR_TOPIC_NAME] \ 
     --runner=DataflowRunner --temp_location=gs://[YOUR_DATAFLOW_STAGING_BUCKET]/tmp \
     --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=us-central1 \
