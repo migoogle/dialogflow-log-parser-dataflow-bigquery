@@ -16,7 +16,7 @@ __Note:__ Dialogflow Interactions Logging is sent to Cloud Logging as a Text Pay
 ## BigQuery Schema
 
 You can modify the schema.json file to define the BigQuery's table schema.
-This json is an example for fields extracted of an Dialogflow CX agent:
+This json is an example for fields extracted from the logs of a Dialogflow CX agent:
 
 ```json
 [
@@ -134,7 +134,7 @@ This json is an example for fields extracted of an Dialogflow CX agent:
     pip install apache-beam[gcp]
     ```
 
-7. Create BigQuery dataset
+7. Create BigQuery dataset and table
 
     If you're creating an empty table, use the bq mk command.
 
