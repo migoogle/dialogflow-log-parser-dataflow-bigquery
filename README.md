@@ -137,12 +137,14 @@ This json is an example for fields extracted from the logs of a Dialogflow CX ag
 7. Create BigQuery dataset and table
 
     If you're creating an empty table, use the bq mk command.
+    [For more info about bq mk command press here](https://cloud.google.com/bigquery/docs/schemas#creating_a_json_schema_file)
 
-    ```sh
+   ```sh
     bq mk --table project_id:dataset.table path_to_schema_json_file
     ```
 
-8. Deploy Dataflow Job
+8. Deploy Dataflow Job.
+    [For more info about runing a pipeline on a Dataflow service press here](https://cloud.google.com/dataflow/docs/quickstarts/create-pipeline-python#run-the-pipeline-on-the-dataflow-service)
 
     ```sh
     python3 stackdriverdataflowbigquery.py.py --project=[YOUR_PROJECT_ID] \ 
@@ -154,8 +156,7 @@ This json is an example for fields extracted from the logs of a Dialogflow CX ag
 
 9. Enable Dialogflow Logs to Cloud Logging
 
-    Enable Log interactions to Dialogflow and Google Cloud
-    <https://cloud.google.com/dialogflow/docs/history#access_all_logs>
+    Enable Log interactions to Dialogflow and Google Cloud Logging.
 
 Once you enable Enable Log interactions, your new Dialogflow interactions will be available in BigQuery
 
