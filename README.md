@@ -140,7 +140,7 @@ This json is an example for fields extracted from the logs of a Dialogflow CX ag
     [For more info about bq mk command press here](https://cloud.google.com/bigquery/docs/schemas#creating_a_json_schema_file)
 
    ```sh
-    bq mk --table project_id:dataset.table path_to_schema_json_file
+    bq mk --table project_id:dataset.table [YOUR_BIGQUERY_SCHEMA_JSON_FILE]
     ```
 
 8. Deploy Dataflow Job.
