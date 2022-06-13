@@ -118,13 +118,15 @@ This json is an example for fields extracted from the logs of a Dialogflow CX ag
 
     ```sh
     gcloud pubsub topics create [TOPIC_NAME]
-    ```
+    ``` 
 
 5. Create a Cloud Logging sink
 
     ```sh
     gcloud logging sinks create [SINK_NAME] pubsub.googleapis.com/projects/[PROJECT_ID]/topics/[TOPIC_NAME] --log-filter="resource.type=global"
     ```
+    
+Once the sink was created, you need to add the service account associated to the pub/sub topic (touch 3 dots option). The assigned role should be "Pub/Sub Publisher"
 
 6. Install the Apache Beam GCP Library
 
