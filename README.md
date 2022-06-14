@@ -149,7 +149,7 @@ Once the sink was created, you need to add the service account associated to the
     [For more info about runing a pipeline on a Dataflow service press here](https://cloud.google.com/dataflow/docs/quickstarts/create-pipeline-python#run-the-pipeline-on-the-dataflow-service)
 
     ```sh
-    python3 stackdriverdataflowbigquery.py.py --project=[YOUR_PROJECT_ID] \ 
+    python3 stackdriverdataflowbigquery.py --project=[YOUR_PROJECT_ID] \ 
     --input_topic=projects/[YOUR_PROJECT_ID]/topics/[YOUR_TOPIC_NAME] \ 
     --runner=DataflowRunner --temp_location=gs://[YOUR_DATAFLOW_STAGING_BUCKET]/tmp \
     --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=us-central1 \
