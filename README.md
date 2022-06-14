@@ -142,7 +142,7 @@ Once the sink was created, you need to add the service account associated to the
     [For more info about bq mk command press here](https://cloud.google.com/bigquery/docs/schemas#creating_a_json_schema_file)
 
    ```sh
-    bq mk --table project_id:dataset.table [YOUR_BIGQUERY_SCHEMA_JSON_FILE]
+    bq mk --table [YOUR_PROJECT_ID]:[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] [YOUR_BIGQUERY_SCHEMA_JSON_FILE]
     ```
 
 8. Deploy Dataflow Job.
