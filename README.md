@@ -152,7 +152,7 @@ Once the sink was created, you need to add the service account associated to the
     python3 stackdriverdataflowbigquery.py --project=[YOUR_PROJECT_ID] \ 
     --input_topic=projects/[YOUR_PROJECT_ID]/topics/[YOUR_TOPIC_NAME] \ 
     --runner=DataflowRunner --temp_location=gs://[YOUR_DATAFLOW_STAGING_BUCKET]/tmp \
-    --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=us-central1 \
+    --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=[REGION] \
     --bigquery_schema=[YOUR_BIGQUERY_SCHEMA_JSON_FILE]
     ```
 
