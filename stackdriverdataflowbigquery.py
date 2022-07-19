@@ -147,7 +147,7 @@ def run(argv=None, save_main_session=True):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
     # Schema for BigQuery table:
-    bigquery_table_schema_list = read_json_file('known_args.bigquery_schema')
+    bigquery_table_schema_list = read_json_file('schema.json')
     bigquery_table_schema = {'fields': bigquery_table_schema_list}
     filter = get_values_from_dict('name', bigquery_table_schema)
     run()
