@@ -153,7 +153,8 @@ Once the sink was created, you need to add the service account associated to the
     --input_topic=projects/[YOUR_PROJECT_ID]/topics/[YOUR_TOPIC_NAME] \ 
     --runner=DataflowRunner --temp_location=gs://[YOUR_DATAFLOW_STAGING_BUCKET]/tmp \
     --output_bigquery=[YOUR_BIGQUERY_DATASET.YOUR BIGQUERY_TABLE] --region=[REGION] \
-    --bigquery_schema=[YOUR_BIGQUERY_SCHEMA_JSON_FILE]
+    --service_account_email [YOUR_SERVICE_ACCOUNT_EMAIL] \
+    --bigquery_schema=[YOUR_BIGQUERY_SCHEMA_JSON_FILE] 
     ```
 
 9. Enable Dialogflow Logs to Cloud Logging
